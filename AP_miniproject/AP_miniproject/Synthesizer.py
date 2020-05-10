@@ -12,7 +12,7 @@ class Timbre():
 class Synthesizer:
     samplerate = 44100
 
-    def __init__(self, samplerate = 44100):
+    def __init__(self, samplerate=44100):
         self.samplerate = samplerate
 
     def _wave(self, cycle, duration):
@@ -27,7 +27,7 @@ class Synthesizer:
 
     def sinusoidSweepSamples(self, amplitude, startFrequency, endFrequency, samples):
         frequencyStep = (endFrequency - startFrequency) / int(samples)
-        return [(math.sin((x / (self.samplerate / ((frequencyStep*x)+startFrequency))) * (2 * math.pi))) for x in range(int(samples))]
+        return [(math.sin((x / (self.samplerate / ((frequencyStep * x) + startFrequency))) * (2 * math.pi))) for x in range(int(samples))]
 
     def sinusoidSweepDuration(self, amplitude, startFrequency, endFrequency, duration):
         return self.sinusoidSweepSamples(amplitude, startFrequency, endFrequency, int(duration * self.samplerate))
@@ -41,7 +41,7 @@ class Synthesizer:
 
     #sawtooth
     def sawtoothCycle(self, amplitude, wavelength):
-        return [(x * amplitude) for x in range(int(wavelength))]
+        return [((((x / wavelength) * 2) - 1) * amplitude) for x in range(int(wavelength))]
 
     def sawtoothWave(self, amplitude, frequency, duration):
         return self._wave(self.sawtoothCycle(amplitude, int(self.samplerate / frequency)), duration)
@@ -59,7 +59,7 @@ class Synthesizer:
         delay = int(self.samplerate / freq)
         decay = float(np.clip(0, 1, float(decay)))
         output = NoiseBurst
-        output.extend([0]*int(silence*self.samplerate))
+        output.extend([0] * int(silence * self.samplerate))
         for idx in range(delay, len(output)):
             output[idx] = decay * 0.5 * (output[idx - delay] + output[idx - delay - 1])
         return output
@@ -68,15 +68,15 @@ class Synthesizer:
     def makeGString(self, silence, amplitude, frequency, decay, timbre):
         print("[Synthesizer.makeGString]")
         if timbre == Timbre.sinusoidCycle:
-            return self.genKarplusStrong(self.sinusoidCycle(amplitude, self.samplerate/frequency), frequency, decay, silence)
+            return self.genKarplusStrong(self.sinusoidCycle(amplitude, self.samplerate / frequency), frequency, decay, silence)
         elif timbre == Timbre.squareCycle:
-            return self.genKarplusStrong(self.squareCycle(amplitude, self.samplerate/frequency), frequency, decay, silence)
+            return self.genKarplusStrong(self.squareCycle(amplitude, self.samplerate / frequency), frequency, decay, silence)
         elif timbre == Timbre.sawtoothCycle:
-            return self.genKarplusStrong(self.sawtoothCycle(amplitude, self.samplerate/frequency), frequency, decay, silence)
+            return self.genKarplusStrong(self.sawtoothCycle(amplitude, self.samplerate / frequency), frequency, decay, silence)
         elif timbre == Timbre.whiteNoiseCycle:
-            return self.genKarplusStrong(self.whiteNoiseCycle(amplitude, self.samplerate/frequency), frequency, decay, silence)
+            return self.genKarplusStrong(self.whiteNoiseCycle(amplitude, self.samplerate / frequency), frequency, decay, silence)
         elif timbre == Timbre.sinusoidSweep:
-            return self.genKarplusStrong(self.sinusoidSweepSamples(amplitude, 20, 20000, self.samplerate/frequency), frequency, decay, silence)
+            return self.genKarplusStrong(self.sinusoidSweepSamples(amplitude, 20, 20000, self.samplerate / frequency), frequency, decay, silence)
 
     #Disotrion
     def fullWaveRectifier(self, input):
