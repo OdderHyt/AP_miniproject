@@ -100,14 +100,7 @@ decaySlider = Scale(slideView,
               resolution=0.0001,
               orient=HORIZONTAL)
 decaySlider.grid(row=1, column=1)
-miscLabel = Label(slideView, text="Decay:").grid(row=2, column=0)
-slider = Scale(slideView,
-              from_=0.5, 
-              to=0.999,
-              length=200,
-              resolution=0.001,
-              orient=HORIZONTAL)
-slider.grid(row=2, column=1)
+
 
 
 timbreNames = [
@@ -121,7 +114,7 @@ timbreNames = [
 def selectTimbre():
     print(timbre.get())
 
-
+Label(slideView, text="Change Timbre:").grid(row=2, column=0, columnspan=3, sticky="w")
 for val, timbreNames in enumerate(timbreNames):
     Radiobutton(slideView, 
                   text=timbreNames,
