@@ -8,11 +8,17 @@ root = Tk() #first thing you do in tkinter
 root.title('Guitar Synthesizer')
 root.geometry("700x300")
 #creating things and putting them ón the screen
-synth = Synthesizer()
+synth = Synthesizer(96000)
 
-player = AdditiveStream()
+player = AdditiveStream(96000)
 noteFreqs = [0] * 48
 noteNames = ["A", "A#", "B", "C" , "C#", "D", "D#", "E", "F", "F#", "G", "G#"]
+
+timbre = IntVar()
+timbre.set(3)
+octave = IntVar()
+octave.set(1)
+
 
 x = 0
 for i, val in enumerate(noteFreqs):
@@ -22,27 +28,13 @@ for i, val in enumerate(noteFreqs):
 print("sampling all notes")
 
 
-def genNoteButtons(octaveshift):
+def genNoteButtons():
     x = 0
+    
     for i in noteNames:
-        Label(octaveView, text="Currently playing in octave "+ str(int(octaveshift/12)+1)).grid(row=0, column=0, columnspan=10)
-        Button(noteView, text=noteNames[x], command= lambda freq = noteFreqs[x+6]: player.play(synth.makeGString(5, 1, freq, decaySlider.get())), pady=20).grid(row=0, column=x, sticky="nsew")
+        Button(noteView, text=noteNames[x], command= lambda freq = noteFreqs[(12*octave.get())+x]: player.play(synth.makeGString(5, 1, freq, decaySlider.get(), timbre.get())), pady=20).grid(row=0, column=x, sticky="nsew")
         x+=1
-        print(octaveshift+x)
-
-def octaveChanger(octave):
-    if octave == 1:
-        genNoteButtons(0)
-    elif octave == 2:
-        genNoteButtons(12)
-    elif octave == 3:
-        genNoteButtons(24)
-    elif octave == 4:
-        genNoteButtons(36)
-    elif octave == 5:
-        genNoteButtons(48)
-    else:
-        print("Octave error: No Octave selected?")
+        print(+x)
 
 
 notesize = 0
@@ -75,11 +67,28 @@ noteView.grid_rowconfigure(0, weight=1, uniform="fred")
 
 
 
-noteView.grid_columnconfigure(0, weight=1, uniform="fred")#octaveview setup
-octOne = Button(octaveView, text="1", command= lambda: octaveChanger(1), padx=20).grid(row=1, column=0, sticky="nsew")
-octTwo = Button(octaveView, text="2", command= lambda: octaveChanger(2), padx=20).grid(row=1, column=1, sticky="nsew")
-octThree = Button(octaveView, text="3", command= lambda: octaveChanger(3), padx=20).grid(row=1, column=2, sticky="nsew")
-octFour = Button(octaveView, text="4", command= lambda: octaveChanger(4), padx=20).grid(row=1, column=3, sticky="nsew")
+noteView.grid_columnconfigure(0, weight=1, uniform="fred") 
+octaveNames = [
+    ("1"),
+    ("2"),
+    ("3"),
+    ("4")
+]
+
+def selectOctave():
+    Label(octaveView, text="Currently playing in octave " + str(octave.get()+1)).grid(row=0, column=0, columnspan=10)
+    genNoteButtons()
+
+    print(octave.get())
+
+for val, octaveNames in enumerate(octaveNames):
+    Radiobutton(octaveView, 
+                  text=octaveNames,
+                  indicatoron = 0,
+                  padx = 20, 
+                  variable=octave, 
+                  command=selectOctave,
+                  value=val).grid(row=1, column = 0+val, columnspan = 1, sticky="we")
 
 #slideview setup
 sliderHeader = Label(slideView, text="Adjust the sliders below to change the guitar sounds").grid(row=0, column=0, columnspan=2)
@@ -100,9 +109,8 @@ slider = Scale(slideView,
               orient=HORIZONTAL)
 slider.grid(row=2, column=1)
 
-v = IntVar()
 
-timbre = [
+timbreNames = [
     ("Sinusoid"),
     ("Square"),
     ("Sawtooth"),
@@ -111,18 +119,18 @@ timbre = [
 ]
 
 def selectTimbre():
-    print(v.get())
+    print(timbre.get())
 
 
-for val, timbre in enumerate(timbre):
+for val, timbreNames in enumerate(timbreNames):
     Radiobutton(slideView, 
-                  text=timbre[0],
+                  text=timbreNames,
                   indicatoron = 0,
                   width = 20,
                   padx = 20, 
-                  variable=v, 
+                  variable=timbre, 
                   command=selectTimbre,
                   value=val).grid(row=3+val, column = 0, columnspan = 3, sticky="we")
 
-octaveChanger(2)
+selectOctave()
 root.mainloop()
